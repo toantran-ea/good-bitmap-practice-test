@@ -2,9 +2,11 @@ package goodbitmap.mobi.toan.nonuibitmap;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 public class MainActivity extends Activity {
@@ -24,27 +26,51 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_load_image:
+                loadImage();
+                break;
+            case R.id.action_reset_image:
+                resetImage();
+                break;
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void loadImage(View view) {
+    private void loadImage() {
         ImageView imageView = (ImageView) findViewById(R.id.sample_image_view);
         BitmapWorkerTask bitmapWorkerTask = new BitmapWorkerTask(imageView);
+        BitmapWorkerTask.Config config = new BitmapWorkerTask.Config();
+        int[] reqSizes = getPreferSizes();
+        if(reqSizes != null) {
+            config.reqHeight = reqSizes[0];
+            config.reqWidth = reqSizes[1];
+        }
+        bitmapWorkerTask.setConfig(config);
         bitmapWorkerTask.execute(R.drawable.hd_image);
     }
 
-    public void resetImage(View view) {
+    private void resetImage() {
         ImageView imageView = (ImageView) findViewById(R.id.sample_image_view);
         imageView.setImageBitmap(null);
+    }
+
+    /**
+     * Returns width+height in order as user's preferences.
+     */
+    private int[] getPreferSizes() {
+        int[] reqSizes = new int[2];
+        String widthText = ((EditText)findViewById(R.id.reqwidth_input)).getText().toString();
+        String heightText = ((EditText)findViewById(R.id.reqheight_input)).getText().toString();
+        if(!TextUtils.isEmpty(widthText) && !TextUtils.isEmpty(heightText)) {
+            reqSizes[0] = Integer.valueOf(widthText);
+            reqSizes[1] = Integer.valueOf(heightText);
+        } else {
+            reqSizes = null;
+        }
+        return reqSizes;
     }
 }
